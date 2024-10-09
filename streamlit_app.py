@@ -5,17 +5,40 @@ from streamlit_folium import st_folium
 import pandas as pd
 import xarray as xr
 import altair as alt
+import zipfile
+import gdown
 
 st.set_page_config(layout='wide')
 
 @st.cache_data
-def load_dataset(url):
-    ds = xr.open_dataset(url)
-    return ds
+def download_file_from_google_drive(url, output):
+    gdown.download(url, output, quiet=False)
 
-ds_mensal = load_dataset('https://github.com/GabrielT7878/dashboard_indices_extremos/raw/refs/heads/master/indices/indices_MENSAL.nc')
-ds_quadrsmestral = load_dataset('https://github.com/GabrielT7878/dashboard_indices_extremos/raw/refs/heads/master/indices/indices_QUADRIMESTRAL.nc')
-ds_trimestral = load_dataset('https://github.com/GabrielT7878/dashboard_indices_extremos/raw/refs/heads/master/indices/indices_TRIMESTRAL.nc')
+file_urls = [
+    'https://drive.google.com/uc?id=1QuN-RJKvxNd8QwH1W1T6vwHknHwrEDoP',
+    'https://drive.google.com/uc?id=1RamQCoVRNVtwyC-ilGmEtx4q_G3qaKkp',
+    'https://drive.google.com/uc?id=1fW76Iuxsc65PXml-un46lhJfYIrP6Kwl'
+]
+output_files = ['./indices/indices_MENSAL.zip', './indices/indices_TRIMESTRAL.zip', './indices/indices_QUADRIMESTRAL.zip']
+
+for i, url in enumerate(file_urls):
+    download_file_from_google_drive(url, output_files[i])
+
+@st.cache_data
+def extraxt_files():
+
+    zip_files = ['indices_MENSAL.zip','indices_QUADRIMESTRAL.zip','indices_TRIMESTRAL.zip']
+
+    for zip_file in zip_files:
+        with zipfile.ZipFile(f'./indices/{zip_file}', 'r') as zip_ref:
+            zip_ref.extractall(f'./indices')
+
+extraxt_files()
+
+
+ds_mensal = xr.open_dataset('./indices/indices_MENSAL.nc')
+ds_quadrsmestral = xr.open_dataset('./indices/indices_QUADRIMESTRAL.nc')
+ds_trimestral = xr.open_dataset('./indices/indices_TRIMESTRAL.nc')
 
 ds_select = {
     "MENSAL": ds_mensal,
@@ -37,7 +60,6 @@ with col1:
     st.write('Selecione um ponto no mapa:')
     st.write('(Duplo Clique para remover o ponto)')
     map_data = st_folium(marker_map,center=(-15.01,-39.77),width=1100,height=700,zoom=4)
-    print(map_data["last_object_clicked"])
     if map_data["last_clicked"]:
         clicked_data = map_data["last_clicked"]
         
