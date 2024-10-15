@@ -1,0 +1,242 @@
+{
+    "percentile_precip_95": {
+        "Índice": "Precipitações Extremas > 95th",
+        "Definição": "Precipitação total mensal quando a precipitação é > percentil 95 no período",
+        "Unidade": "mm"
+    },
+    "percentile_precip_99": {
+        "Índice": "Precipitações Extremas > 99th",
+        "Definição": "Precipitação total mensal quando a precipitação é > percentil 99 no período",
+        "Unidade": "mm"
+    },
+    "precip_days_10": {
+        "Índice": "Dias Úmidos",
+        "Definição": "Número máximo de dias com precipitação > 10 mm respectivamente no mês",
+        "Unidade": "dias"
+    },
+    "precip_days_30": {
+        "Índice": "Dias Úmidos",
+        "Definição": "Número máximo de dias com precipitação > 30 mm respectivamente no mês",
+        "Unidade": "dias"
+    },
+    "precip_days_50": {
+        "Índice": "Dias Úmidos",
+        "Definição": "Número máximo de dias com precipitação > 50 mm respectivamente no mês",
+        "Unidade": "dias"
+    },
+    "precip_days_80": {
+        "Índice": "Dias Úmidos",
+        "Definição": "Número máximo de dias com precipitação > 80 mm respectivamente no mês",
+        "Unidade": "dias"
+    },
+    "precip_days_100": {
+        "Índice": "Dias Úmidos",
+        "Definição": "Número máximo de dias com precipitação > 100 mm respectivamente no mês",
+        "Unidade": "dias"
+    },
+    "rxnday": {
+        "Índice": "Precipitação Máxima em 5 Dias",
+        "Definição": "Precipitação máxima mensal em 5 dias consecutivos",
+        "Unidade": "mm"
+    },
+    "cwd": {
+        "Índice": "Dias Úmidos Consecutivos",
+        "Definição": "Número máximo de dias consecutivos no mês quando a precipitação diária foi ≥ 1 mm",
+        "Unidade": "dias"
+    },
+    "cdd": {
+        "Índice": "Dias Secos Consecutivos",
+        "Definição": "Número máximo de dias consecutivos no mês quando a precipitação diária foi < 1 mm",
+        "Unidade": "dias"
+    },
+    "sdii": {
+        "Índice": "Índice Simples de Intensidade Diária",
+        "Definição": "Precipitação total mensal acumulada de dias com precipitação ≥ 1 mm dividida pela quantidade de dias úmidos",
+        "Unidade": "mm/dia"
+    },
+    "rx1day": {
+        "Índice": "Precipitação Máxima em 1 Dia",
+        "Definição": "Precipitação máxima mensal em 1 dia",
+        "Unidade": "mm"
+    },
+    "prcptot": {
+        "Índice": "Precipitação Total Acumulada",
+        "Definição": "Precipitação total mensal acumulada de dias com precipitação > 1 mm",
+        "Unidade": "mm"
+    },
+    "spi": {
+        "Índice": "Índice Padronizado de Precipitação",
+        "Definição": "Medida padronizada da anomalia de precipitação acumulada para diferentes escalas de tempo em relação à média histórica. Valores negativos indicam seca e valores positivos indicam excesso de precipitação.",
+        "Unidade": "-"
+    },
+    "tx10p": {
+        "Índice": "Dias Muito Frios",
+        "Definição": "Porcentagem de dias no mês com temperatura máxima < percentil 10 no período",
+        "Unidade": "%"
+    },
+    "tx90p": {
+        "Índice": "Dias Muito Quentes",
+        "Definição": "Porcentagem de dias no mês com temperatura máxima > percentil 90 no período",
+        "Unidade": "%"
+    },
+    "wsdi": {
+        "Índice": "Onda de Calor",
+        "Definição": "Número de dias com pelo menos 6 dias consecutivos de temperatura máxima > percentil 90 (ondas de calor) no período",
+        "Unidade": "dias"
+    },
+    "txn": {
+        "Índice": "Menor Temperatura Máxima Diária",
+        "Definição": "Menor temperatura máxima diária no mês",
+        "Unidade": "ºC"
+    },
+    "txx": {
+        "Índice": "Maior Temperatura Máxima Diária",
+        "Definição": "Maior temperatura máxima diária no mês",
+        "Unidade": "ºC"
+    },
+    "tn10p": {
+        "Índice": "Noites Muito Frias",
+        "Definição": "Porcentagem de dias no mês com temperatura mínima < percentil 10 no período",
+        "Unidade": "%"
+    },
+    "tn90p": {
+        "Índice": "Noites Muito Quentes",
+        "Definição": "Porcentagem de dias no mês com temperatura mínima > percentil 90 no período",
+        "Unidade": "%"
+    },
+    "cold_spell": {
+        "Índice": "Ondas de Frio",
+        "Definição": "Número de dias com pelo menos 6 dias consecutivos de temperatura mínima < percentil 10 (ondas de frio) em cada período",
+        "Unidade": "dias"
+    },
+    "tnn": {
+        "Índice": "Menor Temperatura Mínima Diária",
+        "Definição": "Menor temperatura mínima diária no mês",
+        "Unidade": "ºC"
+    },
+    "tnx": {
+        "Índice": "Maior Temperatura Mínima Diária",
+        "Definição": "Maior temperatura mínima diária no mês",
+        "Unidade": "ºC"
+    },
+    "drt": {
+        "Índice": "Amplitude Térmica Diária",
+        "Definição": "Média mensal da diferença entre a temperatura máxima e mínima diária",
+        "Unidade": "ºC"
+    },
+    "spei_1": {
+        "Índice": "Índice Padronizado de Precipitação e Evapotranspiração (1 mês)",
+        "Definição": "Medida padronizada do balanço hídrico (precipitação menos evapotranspiração potencial) em diferentes escalas de tempo. Valores negativos indicam seca e valores positivos indicam condições úmidas.",
+        "Unidade": "-"
+    },
+    "spei_3": {
+        "Índice": "Índice Padronizado de Precipitação e Evapotranspiração (3 meses)",
+        "Definição": "Medida padronizada do balanço hídrico (precipitação menos evapotranspiração potencial) em diferentes escalas de tempo. Valores negativos indicam seca e valores positivos indicam condições úmidas.",
+        "Unidade": "-"
+    },
+    "spei_6": {
+        "Índice": "Índice Padronizado de Precipitação e Evapotranspiração (6 meses)",
+        "Definição": "Medida padronizada do balanço hídrico (precipitação menos evapotranspiração potencial) em diferentes escalas de tempo. Valores negativos indicam seca e valores positivos indicam condições úmidas.",
+        "Unidade": "-"
+    },
+    "E10p": {
+        "Índice": "Dias com Evapotranspiração Reduzida",
+        "Definição": "Porcentagem de dias no mês com evapotranspiração < percentil 10 no período",
+        "Unidade": "%"
+    },
+    "E90p": {
+        "Índice": "Dias com Evapotranspiração Elevada",
+        "Definição": "Porcentagem de dias no mês com evapotranspiração > percentil 90 no período",
+        "Unidade": "%"
+    },
+    "max_evap": {
+        "Índice": "Maior Evapotranspiração Diária",
+        "Definição": "Maior evapotranspiração diária no mês",
+        "Unidade": "ºC"
+    },
+    "mean_evap": {
+        "Índice": "Evapotranspiração Média Diária",
+        "Definição": "Evapotranspiração média diária no mês",
+        "Unidade": "ºC"
+    },
+    "min_evap": {
+        "Índice": "Menor Evapotranspiração Diária",
+        "Definição": "Menor evapotranspiração diária no mês",
+        "Unidade": "ºC"
+    },
+    "U10p": {
+        "Índice": "Dias com Umidade Relativa Reduzida",
+        "Definição": "Porcentagem de dias no mês com umidade relativa < percentil 10 no período",
+        "Unidade": "%"
+    },
+    "U90p": {
+        "Índice": "Dias com Umidade Relativa Elevada",
+        "Definição": "Porcentagem de dias no mês com umidade relativa > percentil 90 no período",
+        "Unidade": "%"
+    },
+    "max_umi": {
+        "Índice": "Maior Umidade Relativa Diária",
+        "Definição": "Maior umidade relativa diária no mês",
+        "Unidade": "ºC"
+    },
+    "mean_umi": {
+        "Índice": "Umidade Relativa Média Diária",
+        "Definição": "Umidade relativa média diária no mês",
+        "Unidade": "ºC"
+    },
+    "min_umi": {
+        "Índice": "Menor Umidade Relativa Diária",
+        "Definição": "Menor umidade relativa diária no mês",
+        "Unidade": "ºC"
+    },
+    "R10p": {
+        "Índice": "Dias com Radiação Solar Reduzida",
+        "Definição": "Porcentagem de dias no mês com radiação solar < percentil 10 no período",
+        "Unidade": "%"
+    },
+    "R90p": {
+        "Índice": "Dias com Radiação Solar Elevada",
+        "Definição": "Porcentagem de dias no mês com radiação solar > percentil 90 no período",
+        "Unidade": "%"
+    },
+    "max_radiation": {
+        "Índice": "Maior Radiação Solar Diária",
+        "Definição": "Maior radiação solar diária no mês",
+        "Unidade": "ºC"
+    },
+    "mean_radiation": {
+        "Índice": "Radiação Solar Média Diária",
+        "Definição": "Radiação solar média diária no mês",
+        "Unidade": "ºC"
+    },
+    "min_radiation": {
+        "Índice": "Menor Radiação Solar Diária",
+        "Definição": "Menor radiação solar diária no mês",
+        "Unidade": "ºC"
+    },
+    "V10p": {
+        "Índice": "Dias com Velocidade do Vento Reduzida",
+        "Definição": "Porcentagem de dias no mês com velocidade do vento < percentil 10 no período",
+        "Unidade": "%"
+    },
+    "V90p": {
+        "Índice": "Dias com Velocidade do Vento Elevada",
+        "Definição": "Porcentagem de dias no mês com velocidade do vento > percentil 90 no período",
+        "Unidade": "%"
+    },
+    "max_wind": {
+        "Índice": "Maior Velocidade do Vento Diária",
+        "Definição": "Maior velocidade do vento diária no mês",
+        "Unidade": "ºC"
+    },
+    "mean_wind": {
+        "Índice": "Velocidade do Vento Média Diária",
+        "Definição": "Velocidade do vento média diária no mês",
+        "Unidade": "ºC"
+    },
+    "min_wind": {
+        "Índice": "Menor Velocidade do Vento Diária",
+        "Definição": "Menor velocidade do vento diária no mês",
+        "Unidade": "ºC"
+    }
+} 
