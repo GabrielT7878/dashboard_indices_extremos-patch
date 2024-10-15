@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 # from folium.raster_layers import ImageOverlay
-# import os
+import os
 # import geopandas as gpd
 
 
@@ -82,8 +82,10 @@ with open('indices_extremos_descricoes.json', 'r', encoding='utf-8') as f:
 
 caminho_pasta = Path("./indices")
 
+em_zip = any(arquivo.endswith('.zip') for arquivo in os.listdir(caminho_pasta))
+
 # Verifica se os arquivos ainda não foram baixados
-if not any(caminho_pasta.iterdir()):
+if not em_zip:
     file_urls = [
         'https://drive.google.com/uc?id=1QuN-RJKvxNd8QwH1W1T6vwHknHwrEDoP',
         'https://drive.google.com/uc?id=1RamQCoVRNVtwyC-ilGmEtx4q_G3qaKkp',
