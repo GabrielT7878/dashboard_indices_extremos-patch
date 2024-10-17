@@ -4,8 +4,9 @@ folium
 streamlit-folium
 xarray
 altair
-netcdf4
 gdown
 numpy
 matplotlib
 cartopy
+geopandas
+plotly

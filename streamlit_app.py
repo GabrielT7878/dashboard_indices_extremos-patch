@@ -13,9 +13,13 @@ import json
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
-# from folium.raster_layers import ImageOverlay
+from folium.raster_layers import ImageOverlay
 import os
-# import geopandas as gpd
+import geopandas as gpd
+from folium import Choropleth
+import plotly.express as px
+import datetime
+import plotly.graph_objects as go
 
 
 st.set_page_config(layout='wide')
@@ -43,7 +47,7 @@ def plot_index_map(ds, index_name, year, month):
     ax.set_extent([-74, -34, -35, 5], crs=ccrs.PlateCarree())
 
     # # Adicionar a linha de costa
-    # ax.coastlines(resolution='10m', linewidth=1.5)
+    ax.coastlines(resolution='10m', linewidth=1.5)
 
     # Adicionar os estados
     ax.add_feature(cfeature.BORDERS, linewidth=1)
@@ -51,12 +55,12 @@ def plot_index_map(ds, index_name, year, month):
         'cultural', 'admin_1_states_provinces_lakes', '10m').geometries(), 
         ccrs.PlateCarree(), facecolor='none', edgecolor='black', linewidth=0.5))
 
-    # # Adicionar gridlines
-    # gl = ax.gridlines(draw_labels=True, linewidth=0.5, color='gray', alpha=0.5, linestyle='--')
-    # gl.top_labels = False
-    # gl.right_labels = False
-    # gl.xlabel_style = {'size': 12, 'color': 'black'}
-    # gl.ylabel_style = {'size': 12, 'color': 'black'}
+    # Adicionar gridlines
+    gl = ax.gridlines(draw_labels=True, linewidth=0.5, color='gray', alpha=0.5, linestyle='--')
+    gl.top_labels = False
+    gl.right_labels = False
+    gl.xlabel_style = {'size': 12, 'color': 'black'}
+    gl.ylabel_style = {'size': 12, 'color': 'black'}
 
     # Preparar os dados para plotar
     lat = ds['latitude'].values
@@ -70,6 +74,50 @@ def plot_index_map(ds, index_name, year, month):
 
     plt.savefig('temp_plot.png', bbox_inches='tight', pad_inches=0)
 
+def prepare_data(estado,data_var,year_select,month_select,geojson_data,period):
+    df = pd.read_csv('latitude-longitude-cidades.csv',sep=';')
+
+    df = df[df['uf'] == estado]
+
+    names = []
+    ids = []
+
+    for i in range(len(geojson_data['features'])):
+        names.append(geojson_data['features'][i]['properties']['name'])
+        ids.append(geojson_data['features'][i]['properties']['id'])
+
+    nome_id = pd.DataFrame({
+        "municipio": names,
+        "id": ids
+    })
+
+    df = df.merge(nome_id,how='left',on='municipio')
+
+    ds = xr.open_dataset(f'./indices/indices_{period}.nc')
+
+    ids = []
+    value = []
+    nomes = []
+    if period == 'QUADRIMESTRAL' or 'TRIMESTRAL':
+        day = 1
+    else:
+        day = 28
+    for i in range(len(df)):
+        dr = ds.sel(latitude=df.iloc[i]['latitude'],longitude=df.iloc[i]['longitude'],time=datetime.date(year_select,month_select,day),method='nearest')
+        ids.append(df.iloc[i]['id'])
+        value.append(dr[data_var].values)
+        nomes.append(df.iloc[i]['municipio'])
+
+    df = pd.DataFrame({
+        "id": ids,
+        "value": value,
+        "municipio": nomes
+    })
+
+
+    df.to_csv(f'{data_var}_{estado}_{year_select}_{month_select}.csv',index=False)
+    
+    return f'{data_var}_{estado}_{year_select}_{month_select}.csv'
 
 @st.cache_data
 def download_file_from_google_drive(url, output):
@@ -107,73 +155,27 @@ if not em_zip:
 
     extraxt_files()
 
-
-# ds_mensal = xr.open_dataset('./indices/indices_MENSAL.nc')
-# ds_trimestral = xr.open_dataset('./indices/indices_TRIMESTRAL.nc')
-# ds_quadrimestral = xr.open_dataset('./indices/indices_QUADRIMESTRAL.nc')
-
 cidades = pd.read_csv('latitude-longitude-cidades.csv',sep=';')
 
-# ds_select = {
-#     "MENSAL": ds_mensal,
-#     "TRIMESTRAL": ds_trimestral,
-#     "QUADRIMESTRAL": ds_quadrimestral
-# }
-
 if 'zoom' not in st.session_state:
-    st.session_state.zoom = 4
+    st.session_state.zoom = 5
 
 if 'lat' not in st.session_state:
-    st.session_state.lat = -15.75
+    st.session_state.lat = -22.34
 if 'lon' not in st.session_state:
-    st.session_state.lon = -47.95
+    st.session_state.lon =  -49.09
 if 'center' not in st.session_state:
-    st.session_state.center = (-15.75,-39.95)
+    st.session_state.center = (-22.34,-49.09)
 
-image_path = 'temp_plot.png'
-
-
-marker_map = folium.Map(location=[st.session_state.lat, st.session_state.lon],
-                        zoom_start=st.session_state.zoom,
-                        max_zoom=16,
-                        min_zoom=2
-                        )
-
-# if os.path.exists(image_path):
-#     bounds = [[-38, -73.6], [9.5, -28.6]]
-
-#     image_overlay = ImageOverlay(
-#         image=image_path,
-#         bounds=bounds,
-#         opacity=0.6,  # Ajuste a opacidade conforme necessário
-#         interactive=True,
-#         cross_origin=False,
-#         zindex=1,
-#     )
-
-#     image_overlay.add_to(marker_map)
-
-
-
-
-marker = folium.Marker(
-    location=[st.session_state.lat, st.session_state.lon]
-)
-
-fg = folium.FeatureGroup(name="Markers")
-fg.add_child(marker)
-
-folium.LayerControl().add_to(marker_map)
- 
-col1, col2 = st.columns(2)
+col1, col2 = st.columns(2,gap='large')
 
 lat, lon = st.session_state.lat, st.session_state.lon
 
 with col1:
     if 'cidade_selecionada' not in st.session_state:
-        st.session_state.cidade_selecionada = 'Brasília'
+        st.session_state.cidade_selecionada = 'São Paulo'
     if 'estado_selecionado' not in st.session_state:
-        st.session_state.estado_selecionado = 'DF'
+        st.session_state.estado_selecionado = 'SP'
         
     col_estado, col_cidade = st.columns(2)
     with col_estado:
@@ -181,96 +183,157 @@ with col1:
     with col_cidade:
         cidade = st.selectbox("Cidade", cidades[cidades['uf'] == estado]['municipio'].unique(), index=cidades[cidades['uf'] == estado]['municipio'].unique().tolist().index(st.session_state.cidade_selecionada) if st.session_state.cidade_selecionada in cidades[cidades['uf'] == estado]['municipio'].unique().tolist() else 0)
     
-    st.write('Selecione um ponto no mapa:')
-    
-    map_data = st_folium(marker_map,center=st.session_state.center,width=1100,height=700,zoom=st.session_state.zoom,key='mapa_principal',feature_group_to_add=fg)
-    
-    if map_data["last_clicked"]:
-        clicked_data = map_data["last_clicked"]
-        
-        lat = clicked_data['lat']
-        lon = clicked_data['lng']
-
-        st.session_state.lat, st.session_state.lon = lat, lon
-
-        distancias = np.sqrt((cidades['latitude'] - lat)**2 + (cidades['longitude'] - lon)**2)
-        cidade_selecionada = cidades.iloc[distancias.idxmin()]
-        
-        if st.session_state.cidade_selecionada != cidade_selecionada['municipio'] or st.session_state.estado_selecionado != cidade_selecionada['uf']:
-            st.session_state.estado_selecionado = cidade_selecionada['uf']
-            st.session_state.cidade_selecionada = cidade_selecionada['municipio']
-            st.session_state.zoom = map_data["zoom"]
-            st.session_state.center = map_data["center"]
-            st.rerun()
-
-with col2:
-    tabs = st.tabs(['Dados','Gerar Mapa'])
-    with tabs[0]:
-        st.write(f"Dados do Ponto:")
-
-        lat = cidades[(cidades['uf'] == estado) & (cidades['municipio'] == cidade)]['latitude'].values[0]
-        lon = cidades[(cidades['uf'] == estado) & (cidades['municipio'] == cidade)]['longitude'].values[0]
-
-        st.session_state.lat, st.session_state.lon = lat, lon
-
+    col_var,col_period = st.columns(2)
+    with col_period:
         period = st.selectbox("Período: ",['MENSAL','TRIMESTRAL','QUADRIMESTRAL'],index=0)
-        #ds = ds_select[period]
         ds = xr.open_dataset(f'./indices/indices_{period}.nc')
-        ds_sel = ds.sel(latitude=lat,longitude=lon,method='nearest')
-        st.write(f"Latitude e Longitude: {ds_sel['latitude'].values:.2f}, {ds_sel['longitude'].values:.2f}")
-        var = st.selectbox('Selecione a variável',ds.data_vars)
-        print(ds.data_vars.values)
-
-        # Exibir a descrição da variável selecionada
-        if var in indices_extremos:
-            descricao = indices_extremos[var]['Definição']
-            indice = indices_extremos[var]['Índice']
-            unidade = indices_extremos[var]['Unidade']
-            st.write(f"**Indíce**: {indice}")
-            st.write(f"**Descrição**: {descricao}")
-
+        ds_sel = ds.sel(latitude=-5.023096,longitude=-45.000992,method='nearest')
         df = ds_sel.to_dataframe().reset_index()
         df['time'] = pd.to_datetime(df['time'])
-        df['time'] = df['time'].dt.strftime('%m/%Y')
         df.fillna(0, inplace=True)
+    with col_var:
+        var = st.selectbox('Selecione a variável',ds.data_vars)
 
-        line_chart = alt.Chart(df).mark_line().encode(
-            y=alt.Y(f'{var}:Q', title=f'{indices_extremos[var]['Unidade']}'),
-            x=alt.X('time:N', sort=None, title='Mês/Ano')  # 'N' para indicar que 'time' é nominal (string)
-        )
+    years = df['time'].dt.year.unique()
+    months = df['time'].dt.month.unique()
 
-        point_chart = alt.Chart(df).mark_point().encode(
-            y=alt.Y(f'{var}:Q'),
-            x=alt.X('time:N',sort=None)  # 'N' também aqui para combinar com o gráfico de linha
-        )
+    selector = {
+        "MENSAL": 1,
+        "TRIMESTRAL": 3,
+        "QUADRIMESTRAL": 4
+    }
 
-        chart_df = (line_chart + point_chart).properties(
-            title={
-            'text': [f'{var}'],
-            'anchor': 'middle'  # Centraliza o título
-            }
-        )
+    months = [x for x in months if x % selector[period] == 0]
 
-        st.altair_chart(chart_df, use_container_width=True)
+    if period == "QUADRIMESTRAL":
+        months = df['time'].dt.month.unique()
+        months = [x for x in months if (x-1) % selector[period] == 0]
 
-    # with tabs[1]:
-    #     ds = ds_select[period]
-    #     df = ds_sel.to_dataframe().reset_index()
-    #     df['time'] = pd.to_datetime(df['time'])
-    #     df.fillna(0, inplace=True)
+    lat = cidades[(cidades['uf'] == estado) & (cidades['municipio'] == cidade)]['latitude'].values[0]
+    lon = cidades[(cidades['uf'] == estado) & (cidades['municipio'] == cidade)]['longitude'].values[0]
 
-    #     years = df['time'].dt.year.unique()
-    #     months = df['time'].dt.month.unique()
+    st.session_state.lat, st.session_state.lon = lat, lon
+    #ds = ds_select[period]
+    ds = xr.open_dataset(f'./indices/indices_{period}.nc')
+    ds_sel = ds.sel(latitude=lat,longitude=lon,method='nearest')
 
-    #     col_mes, col_ano = st.columns(2)
-    #     with col_mes:
-    #         month_select = st.selectbox('Selecione o mês',months)
-    #     with col_ano:
-    #         year_select = st.selectbox('Selecione o ano',years)
+    # Exibir a descrição da variável selecionada
+    if var in indices_extremos:
+        descricao = indices_extremos[var]['Definição']
+        indice = indices_extremos[var]['Índice']
+        unidade = indices_extremos[var]['Unidade']
 
-    #     var_map = st.selectbox('Selecione a variável',ds.data_vars,key='var_map')
-    #     if st.button('Gerar Mapa'):
-    #         plot_index_map(ds, var_map, year_select, month_select)
-    #         st.rerun()
-    #         #create_choropleth_map(ds, var_map, year_select, month_select)
+        col_cidade, col_lat_lon = st.columns(2)
+        with col_cidade:
+            st.write(f'**Cidade:** {cidade} - {estado}')
+        with col_lat_lon:
+            st.write(f"**Latitude e Longitude:** {ds_sel['latitude'].values:.2f}, {ds_sel['longitude'].values:.2f}")
+        
+        st.write(f"**Indíce**: {indice}")
+        st.write(f"**Descrição**: {descricao}")
+
+    df = ds_sel.to_dataframe().reset_index()
+    df['time'] = pd.to_datetime(df['time'])
+    df['time'] = df['time'].dt.strftime('%m/%Y')
+    df.fillna(0, inplace=True)
+
+    line_chart = alt.Chart(df).mark_line().encode(
+        y=alt.Y(f'{var}:Q', title=f'{indices_extremos[var]['Unidade']}'),
+        x=alt.X('time:N', sort=None, title='Mês/Ano')  # 'N' para indicar que 'time' é nominal (string)
+    )
+
+    point_chart = alt.Chart(df).mark_point().encode(
+        y=alt.Y(f'{var}:Q'),
+        x=alt.X('time:N',sort=None)  # 'N' também aqui para combinar com o gráfico de linha
+    )
+
+    chart_df = (line_chart + point_chart).properties(
+        title={
+        'text': [f'{var}'],
+        'anchor': 'middle'  # Centraliza o título
+        }
+    )
+
+    st.altair_chart(chart_df, use_container_width=True)
+
+with col2:
+    col_mes, col_ano, col_scale_color = st.columns(3)
+    
+    with col_ano:
+        year_select = st.selectbox('Selecione o ano',years,key='2select')
+    with col_mes:
+        if year_select == 2017:
+            months = [12]
+            month_select = st.selectbox('Selecione o mês',months,key='1select')
+        else:
+            months.sort()
+            month_select = st.selectbox('Selecione o mês',months,key='1select')
+    with col_scale_color:
+        colorscales = px.colors.named_colorscales()
+        color_scale = st.selectbox('Escala de Cor',colorscales)
+
+
+    with open('geo_names_path.json', 'r', encoding='utf-8') as f:
+        geojson_path = json.load(f)   
+
+    with open(geojson_path[estado], 'r', encoding='utf-8') as f:
+        geojson_data = json.load(f)
+
+    file_name = prepare_data(estado,var,year_select,month_select,geojson_data,period)
+
+    df = pd.read_csv(file_name)
+
+    os.remove(file_name)
+
+    coordenadas_estados_BR = pd.read_csv('coordenadas_estados_BR.csv')
+    coordenadas_estados_BR = coordenadas_estados_BR[coordenadas_estados_BR['estado'] == estado]
+
+    fig = px.choropleth_mapbox(
+        df,
+        geojson=geojson_data,
+        hover_name='municipio',     # GeoJSON carregado com os dados geográficos
+        locations='id',       # Usamos o índice como identificador (caso não tenha IDs específicos)
+        color='value',               # Coluna com os valores a serem representados
+        mapbox_style='carto-positron',
+        center={'lat': coordenadas_estados_BR['lat'].values[0], 'lon': coordenadas_estados_BR['long'].values[0]},  # Centralizado no Brasil
+        zoom=5,                      # Nível de zoom inicial
+        color_continuous_scale=color_scale,  # Escala de cor contínua
+        featureidkey="properties.id"  # Ajuste conforme o campo que conecta com o GeoJSON (se houver)
+    )
+
+
+    cidades_lat_lon = pd.read_csv('latitude-longitude-cidades.csv',sep=';')
+    #df_city = df[df[cidades_lat_lon['municipio'] == cidade]]
+    df_city = cidades_lat_lon.query("municipio == @cidade")
+    lat_lon_city = df_city['latitude'],df_city['longitude']
+
+
+    fig.update_layout(
+        title={
+        'text': f"{var} - {year_select}/{month_select} {estado} {period}",  # Título do gráfico
+        'y':0.95,  # Posição no eixo y (0 a 1)
+        'x':0.5,   # Posição no eixo x (0 a 1, centralizado)
+        'xanchor': 'center',  # Alinhamento do título no eixo x
+        'yanchor': 'top'      # Alinhamento no eixo y
+        },
+        height=600,
+        coloraxis_colorbar={
+            'title': f'{var}',             # Título da barra de cores
+            'orientation': 'h',           # Orientação horizontal
+            'xanchor': 'center',          # Centraliza a barra de cores
+            'yanchor': 'bottom',          # Alinha a barra de cores ao fundo
+            'x': 0.5,                     # Posição no eixo x (meio do mapa)
+            'y': -0.15,                    # Posição no eixo y (abaixo do mapa)
+            'thickness': 15,              # Espessura da barra de cores
+            'len': 0.7                    # Comprimento da barra de cores
+        }
+    )
+    # fig.add_trace(go.Scattergeo(
+    #     lat=[lat_lon_city[0]],  # Latitude do marcador
+    #     lon=[lat_lon_city[1]],
+    #     mode = 'markers',
+    #     marker_color = "red",
+    #     hovertemplate='%{lon},%{lat}<extra></extra>',
+    # ))
+    st.plotly_chart(fig, use_container_width=True)
             
