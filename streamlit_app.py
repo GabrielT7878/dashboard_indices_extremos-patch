@@ -13,95 +13,41 @@ import json
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
-from folium.raster_layers import ImageOverlay
 import os
-import geopandas as gpd
-from folium import Choropleth
 import plotly.express as px
 import datetime
-import plotly.graph_objects as go
+import numpy
+import geopandas as gpd
 
 
 st.set_page_config(layout='wide')
 
-def plot_index_map(ds, index_name, year, month):
-    """
-    Função para plotar o índice escolhido em um mapa para um mês e ano específicos.
-
-    Parâmetros:
-    - ds: xarray.Dataset contendo os dados.
-    - index_name: Nome do índice a ser plotado (por exemplo, 'precip_days_10').
-    - year: Ano desejado para a visualização (por exemplo, 2018).
-    - month: Mês desejado para a visualização (por exemplo, 1 para Janeiro).
-    """
-    # Selecionar o índice
-    index_data = ds[index_name]
-
-    # Filtrar para o ano e mês específicos
-    time_idx = np.where((ds['time.year'] == year) & (ds['time.month'] == month))[0][0]
-    
-    # Configurar o mapa
-    fig, ax = plt.subplots(figsize=(10, 10), subplot_kw={'projection': ccrs.PlateCarree()})
-
-    # Definir os limites do mapa para abranger o Brasil
-    ax.set_extent([-74, -34, -35, 5], crs=ccrs.PlateCarree())
-
-    # # Adicionar a linha de costa
-    ax.coastlines(resolution='10m', linewidth=1.5)
-
-    # Adicionar os estados
-    ax.add_feature(cfeature.BORDERS, linewidth=1)
-    ax.add_feature(cfeature.ShapelyFeature(cfeature.NaturalEarthFeature(
-        'cultural', 'admin_1_states_provinces_lakes', '10m').geometries(), 
-        ccrs.PlateCarree(), facecolor='none', edgecolor='black', linewidth=0.5))
-
-    # Adicionar gridlines
-    gl = ax.gridlines(draw_labels=True, linewidth=0.5, color='gray', alpha=0.5, linestyle='--')
-    gl.top_labels = False
-    gl.right_labels = False
-    gl.xlabel_style = {'size': 12, 'color': 'black'}
-    gl.ylabel_style = {'size': 12, 'color': 'black'}
-
-    # Preparar os dados para plotar
-    lat = ds['latitude'].values
-    lon = ds['longitude'].values
-    data = index_data[time_idx, :, :].values
-
-    # Plotar o índice
-    contour = ax.contourf(lon, lat, data, levels=np.arange(0, np.nanmax(data), 1), cmap='YlGnBu', transform=ccrs.PlateCarree())
-    cbar = fig.colorbar(contour, ax=ax, orientation='vertical', pad=0.02)
-    ax.set_title(f'Índice: {index_name} - {month}/{year}', fontsize=14)
-
-    plt.savefig('temp_plot.png', bbox_inches='tight', pad_inches=0)
-
-def prepare_data(estado,data_var,year_select,month_select,geojson_data,period):
+def prepare_data(state,data_var,year_select,month_select,geojson_data,period):
     df = pd.read_csv('latitude-longitude-cidades.csv',sep=';')
-
-    df = df[df['uf'] == estado]
 
     names = []
     ids = []
 
-    for i in range(len(geojson_data['features'])):
-        names.append(geojson_data['features'][i]['properties']['name'])
-        ids.append(geojson_data['features'][i]['properties']['id'])
+    if state != "Todos":
+        nome_id = pd.DataFrame({
+            "municipio": geojson_data['name'].values,
+            "id": geojson_data['id'].values
+        })
 
-    nome_id = pd.DataFrame({
-        "municipio": names,
-        "id": ids
-    })
-
-    df = df.merge(nome_id,how='left',on='municipio')
-
+        df = nome_id.merge(df,how='left',on='municipio')
+    else:
+        df = pd.read_csv('cidades_id_lat_lon.csv')
+    
     ds = xr.open_dataset(f'./indices/indices_{period}.nc')
 
     ids = []
     value = []
     nomes = []
-    if period == 'QUADRIMESTRAL' or 'TRIMESTRAL':
+    if period == 'QUADRIMESTRAL' or period == 'TRIMESTRAL':
         day = 1
     else:
         day = 28
+
     for i in range(len(df)):
         dr = ds.sel(latitude=df.iloc[i]['latitude'],longitude=df.iloc[i]['longitude'],time=datetime.date(year_select,month_select,day),method='nearest')
         ids.append(df.iloc[i]['id'])
@@ -115,9 +61,9 @@ def prepare_data(estado,data_var,year_select,month_select,geojson_data,period):
     })
 
 
-    df.to_csv(f'{data_var}_{estado}_{year_select}_{month_select}.csv',index=False)
+    df.to_csv(f'{data_var}_{state}_{year_select}_{month_select}.csv',index=False)
     
-    return f'{data_var}_{estado}_{year_select}_{month_select}.csv'
+    return f'{data_var}_{state}_{year_select}_{month_select}.csv'
 
 @st.cache_data
 def download_file_from_google_drive(url, output):
@@ -179,11 +125,13 @@ with col1:
         
     col_estado, col_cidade = st.columns(2)
     with col_estado:
-        estado = st.selectbox("Estado", cidades['uf'].unique(), index=cidades['uf'].unique().tolist().index(st.session_state.estado_selecionado))
+        estados_options = numpy.append(cidades['uf'].unique(),["Todos"])
+        estado = st.selectbox("Estado", estados_options, index=cidades['uf'].unique().tolist().index(st.session_state.estado_selecionado))
     with col_cidade:
         cidade = st.selectbox("Cidade", cidades[cidades['uf'] == estado]['municipio'].unique(), index=cidades[cidades['uf'] == estado]['municipio'].unique().tolist().index(st.session_state.cidade_selecionada) if st.session_state.cidade_selecionada in cidades[cidades['uf'] == estado]['municipio'].unique().tolist() else 0)
     
     col_var,col_period = st.columns(2)
+    period = ""
     with col_period:
         period = st.selectbox("Período: ",['MENSAL','TRIMESTRAL','QUADRIMESTRAL'],index=0)
         ds = xr.open_dataset(f'./indices/indices_{period}.nc')
@@ -209,8 +157,13 @@ with col1:
         months = df['time'].dt.month.unique()
         months = [x for x in months if (x-1) % selector[period] == 0]
 
-    lat = cidades[(cidades['uf'] == estado) & (cidades['municipio'] == cidade)]['latitude'].values[0]
-    lon = cidades[(cidades['uf'] == estado) & (cidades['municipio'] == cidade)]['longitude'].values[0]
+    estado_select = estado
+    if estado_select != 'Todos':
+        lat = cidades[(cidades['uf'] == estado) & (cidades['municipio'] == cidade)]['latitude'].values[0]
+        lon = cidades[(cidades['uf'] == estado) & (cidades['municipio'] == cidade)]['longitude'].values[0]
+    else:
+        lat = cidades[(cidades['uf'] == "DF") & (cidades['municipio'] == "Brasília")]['latitude'].values[0]
+        lon = cidades[(cidades['uf'] == "DF") & (cidades['municipio'] == "Brasília")]['longitude'].values[0]
 
     st.session_state.lat, st.session_state.lon = lat, lon
     #ds = ds_select[period]
@@ -254,8 +207,10 @@ with col1:
         }
     )
 
-    st.altair_chart(chart_df, use_container_width=True)
-
+    if estado != "Todos":
+        st.altair_chart(chart_df, use_container_width=True)
+    else:
+        st.write(' ')
 with col2:
     col_mes, col_ano, col_scale_color = st.columns(3)
     
@@ -276,8 +231,11 @@ with col2:
     with open('geo_names_path.json', 'r', encoding='utf-8') as f:
         geojson_path = json.load(f)   
 
-    with open(geojson_path[estado], 'r', encoding='utf-8') as f:
-        geojson_data = json.load(f)
+    if estado != "Todos":
+        geojson_data = gpd.read_file(geojson_path[estado])
+    else:
+        geojson_data = gpd.read_file('cidades_Brasil.geojson')
+            
 
     file_name = prepare_data(estado,var,year_select,month_select,geojson_data,period)
 
@@ -286,19 +244,24 @@ with col2:
     os.remove(file_name)
 
     coordenadas_estados_BR = pd.read_csv('coordenadas_estados_BR.csv')
-    coordenadas_estados_BR = coordenadas_estados_BR[coordenadas_estados_BR['estado'] == estado]
 
+    zoom_mapa = 5
+    if estado != "Todos":
+        coordenadas_estados_BR = coordenadas_estados_BR[coordenadas_estados_BR['estado'] == estado]
+    else:
+        coordenadas_estados_BR = coordenadas_estados_BR[coordenadas_estados_BR['estado'] == "DF"]
+        zoom_mapa = 3
     fig = px.choropleth_mapbox(
         df,
         geojson=geojson_data,
-        hover_name='municipio',     # GeoJSON carregado com os dados geográficos
-        locations='id',       # Usamos o índice como identificador (caso não tenha IDs específicos)
+        hover_name='municipio',    
+        locations='id',       
         color='value',               # Coluna com os valores a serem representados
         mapbox_style='carto-positron',
         center={'lat': coordenadas_estados_BR['lat'].values[0], 'lon': coordenadas_estados_BR['long'].values[0]},  # Centralizado no Brasil
-        zoom=5,                      # Nível de zoom inicial
+        zoom=zoom_mapa,                      # Nível de zoom inicial
         color_continuous_scale=color_scale,  # Escala de cor contínua
-        featureidkey="properties.id"  # Ajuste conforme o campo que conecta com o GeoJSON (se houver)
+        featureidkey="properties.id"  
     )
 
 
@@ -318,22 +281,15 @@ with col2:
         },
         height=600,
         coloraxis_colorbar={
-            'title': f'{var}',             # Título da barra de cores
-            'orientation': 'h',           # Orientação horizontal
-            'xanchor': 'center',          # Centraliza a barra de cores
-            'yanchor': 'bottom',          # Alinha a barra de cores ao fundo
-            'x': 0.5,                     # Posição no eixo x (meio do mapa)
-            'y': -0.15,                    # Posição no eixo y (abaixo do mapa)
-            'thickness': 15,              # Espessura da barra de cores
-            'len': 0.7                    # Comprimento da barra de cores
+            'title': f'{var}',            
+            'orientation': 'h',           
+            'xanchor': 'center',          
+            'yanchor': 'bottom',         
+            'x': 0.5,                     
+            'y': -0.15,                    
+            'thickness': 15,          
         }
     )
-    # fig.add_trace(go.Scattergeo(
-    #     lat=[lat_lon_city[0]],  # Latitude do marcador
-    #     lon=[lat_lon_city[1]],
-    #     mode = 'markers',
-    #     marker_color = "red",
-    #     hovertemplate='%{lon},%{lat}<extra></extra>',
-    # ))
+
     st.plotly_chart(fig, use_container_width=True)
             
