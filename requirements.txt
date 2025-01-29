@@ -9,3 +9,4 @@ shapely
 gdown
 requests
 h5netcdf
+rioxarray
