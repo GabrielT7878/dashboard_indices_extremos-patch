@@ -96,7 +96,7 @@ def prepare_data(state,data_var,year_select,month_select,_geojson_data,period):
     else:
         df = pd.read_csv('resources/data/cidades_id_lat_lon.csv')
     
-    ds = xr.open_dataset('resources/data/indices/sp/SP_UF_MENSAL_1961_2024.nc')
+    ds = xr.open_dataset('resources/data/indices/sp/SP_UF_MENSAL_1961_2024.nc', engine='h5netcdf')
 
     ids = []
     value = []
@@ -119,6 +119,8 @@ def prepare_data(state,data_var,year_select,month_select,_geojson_data,period):
     })
 
     #return df.reset_index()
+
+    ds = 'free_buffer'
 
     df.to_csv(f'{data_var}_{state}_{year_select}_{month_select}.csv',index=False)
     
@@ -147,7 +149,7 @@ with open('resources/data/geo_names_path.json', 'r', encoding='utf-8') as f:
 
 coordenadas_estados_BR = pd.read_csv('resources/data/coordenadas_estados_BR.csv')
 
-ds_indices = xr.open_dataset("resources/data/indices/sp/SP_UF_MENSAL_1961_2024.nc")
+ds_indices = xr.open_dataset("resources/data/indices/sp/SP_UF_MENSAL_1961_2024.nc",engine='h5netcdf')
 df_indices = pd.read_parquet('resources/data/indices/sp/SP_UF_MENSAL_1961_2024.parquet')
 
 with open("resources/indices_extremos_descricoes.json", 'r', encoding='utf-8') as json_file:
