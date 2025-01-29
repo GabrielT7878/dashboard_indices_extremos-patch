@@ -172,7 +172,7 @@ with st.sidebar:
 latitude, longitude = cities_lat_lon[cities_lat_lon['municipio'] == city][['latitude', 'longitude']].values[0]
 
 #filtrar shapefile da cidade
-gpf_city = gpd.read_file("resources\shapefiles\SP_Municipios_2023\SP_Municipios_2023.shp")
+gpf_city = gpd.read_file("./resources/shapefiles/SP_Municipios_2023/SP_Municipios_2023.shp")
 gpf_city = gpf_city[gpf_city['NM_MUN'] == city]
 
 #clipar dados com base nos limites da cidade
