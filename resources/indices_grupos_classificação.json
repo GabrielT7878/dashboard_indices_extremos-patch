@@ -1,0 +1,58 @@
+{
+  "Chuvas Intensas": [
+    "percentile_precip_95",
+    "percentile_precip_99",
+    "precip_days_10",
+    "precip_days_30",
+    "precip_days_50",
+    "precip_days_80",
+    "precip_days_100",
+    "rxnday",
+    "cwd",
+    "sdii",
+    "rx1day",
+    "prcptot",
+    "spi"
+  ],
+
+  "Seca": [
+    "cdd",
+    "drt",
+    "U10p",
+    "min_umi",
+    "spi",
+    "spei_1",
+    "spei_3",
+    "spei_6"
+  ],
+
+  "Ondas de Calor": [
+    "tx90p",
+    "wsdi",
+    "txx",
+    "E90p",
+    "R90p",
+    "max_radiation"
+  ],
+
+  "Ondas de Frio": [
+    "tn10p",
+    "cold_spell",
+    "tnn",
+    "min_radiation",
+    "R10p",
+    "E10p"
+  ],
+
+  "Vendavais": ["max_wind", "mean_wind", "V90p"],
+
+  "Movimentação de Massa": [
+    "max_evap",
+    "mean_evap",
+    "min_evap",
+    "max_umi",
+    "mean_umi",
+    "min_umi",
+    "rxnday"
+  ]
+}
