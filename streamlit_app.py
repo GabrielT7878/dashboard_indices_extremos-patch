@@ -80,7 +80,7 @@ def get_cidade(lat, lon, full_info=False):
     else:
         return None
 
-def prepare_data(state,data_var,year_select,month_select,_geojson_data,period):
+def prepare_data(_ds,state,data_var,year_select,month_select,_geojson_data,period):
     df = pd.read_csv('resources/data/latitude-longitude-cidades.csv',sep=';')
 
     names = []
@@ -95,8 +95,6 @@ def prepare_data(state,data_var,year_select,month_select,_geojson_data,period):
         df = nome_id.merge(df,how='left',on='municipio')
     else:
         df = pd.read_csv('resources/data/cidades_id_lat_lon.csv')
-    
-    ds = xr.open_dataset('resources/data/indices/sp/SP_UF_MENSAL_1961_2024.nc', engine='h5netcdf')
 
     ids = []
     value = []
@@ -107,7 +105,7 @@ def prepare_data(state,data_var,year_select,month_select,_geojson_data,period):
         day = 28
 
     for i in range(len(df)):
-        dr = ds.sel(latitude=df.iloc[i]['latitude'],longitude=df.iloc[i]['longitude'],time=datetime.date(year_select,month_select,day),method='nearest')
+        dr = _ds.sel(latitude=df.iloc[i]['latitude'],longitude=df.iloc[i]['longitude'],time=datetime.date(year_select,month_select,day),method='nearest')
         ids.append(df.iloc[i]['id'])
         value.append(dr[data_var].values)
         nomes.append(df.iloc[i]['municipio'])
@@ -377,7 +375,7 @@ with tab_map:
     geojson_data = gpd.read_file(geojson_path['SP'])
     coordenadas_estados_BR = coordenadas_estados_BR[coordenadas_estados_BR['estado'] == estado]
 
-    file_name = prepare_data('SP',indice,year_select,month_select_int,geojson_data,'MENSAL')
+    file_name = prepare_data(ds_indices,'SP',indice,year_select,month_select_int,geojson_data,'MENSAL')
 
     df = pd.read_csv(file_name)
 
