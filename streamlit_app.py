@@ -23,7 +23,7 @@ st.set_page_config(page_title=page_title,layout='wide')
 def download_file_from_google_drive(url, output):
     gdown.download(url, output, quiet=False)
 
-caminho_pasta = Path("./resources/data/indices/sp")
+caminho_pasta = Path("./resources/data/indices/sp/")
 
 em_zip = any(arquivo.endswith('.zip') for arquivo in os.listdir(caminho_pasta))
 
