@@ -116,10 +116,6 @@ def prepare_data(_ds,state,data_var,year_select,month_select,_geojson_data,perio
         "municipio": nomes
     })
 
-    #return df.reset_index()
-
-    ds = 'free_buffer'
-
     df.to_csv(f'{data_var}_{state}_{year_select}_{month_select}.csv',index=False)
     
     return f'{data_var}_{state}_{year_select}_{month_select}.csv'
