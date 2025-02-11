@@ -10,3 +10,4 @@ gdown
 requests
 h5netcdf
 rioxarray
+matplotlib
