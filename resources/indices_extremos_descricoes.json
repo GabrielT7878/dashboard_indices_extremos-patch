@@ -152,17 +152,17 @@
     "max_evap": {
         "Índice": "Maior Evapotranspiração Diária",
         "Definição": "Maior evapotranspiração diária no mês",
-        "Unidade": "ºC"
+        "Unidade": "mm/dia"
     },
     "mean_evap": {
         "Índice": "Evapotranspiração Média Diária",
         "Definição": "Evapotranspiração média diária no mês",
-        "Unidade": "ºC"
+        "Unidade": "mm/dia"
     },
     "min_evap": {
         "Índice": "Menor Evapotranspiração Diária",
         "Definição": "Menor evapotranspiração diária no mês",
-        "Unidade": "ºC"
+        "Unidade": "mm/dia"
     },
     "U10p": {
         "Índice": "Dias com Umidade Relativa Reduzida",
@@ -202,17 +202,17 @@
     "max_radiation": {
         "Índice": "Maior Radiação Solar Diária",
         "Definição": "Maior radiação solar diária no mês",
-        "Unidade": "ºC"
+        "Unidade": "MJ*m-2"
     },
     "mean_radiation": {
         "Índice": "Radiação Solar Média Diária",
         "Definição": "Radiação solar média diária no mês",
-        "Unidade": "ºC"
+        "Unidade": "MJ*m-2"
     },
     "min_radiation": {
         "Índice": "Menor Radiação Solar Diária",
         "Definição": "Menor radiação solar diária no mês",
-        "Unidade": "ºC"
+        "Unidade": "MJ*m-2"
     },
     "V10p": {
         "Índice": "Dias com Velocidade do Vento Reduzida",
@@ -227,16 +227,16 @@
     "max_wind": {
         "Índice": "Maior Velocidade do Vento Diária",
         "Definição": "Maior velocidade do vento diária no mês",
-        "Unidade": "ºC"
+        "Unidade": "m/s"
     },
     "mean_wind": {
         "Índice": "Velocidade do Vento Média Diária",
         "Definição": "Velocidade do vento média diária no mês",
-        "Unidade": "ºC"
+        "Unidade": "m/s"
     },
     "min_wind": {
         "Índice": "Menor Velocidade do Vento Diária",
         "Definição": "Menor velocidade do vento diária no mês",
-        "Unidade": "ºC"
+        "Unidade": "m/s"
     }
 } 
